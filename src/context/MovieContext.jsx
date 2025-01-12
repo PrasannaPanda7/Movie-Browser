@@ -17,13 +17,20 @@ export function MovieProvider({ children }) {
   });
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const { loading, error, getMovies, searchMoviesApi } = useFetchData();
+  const [isAdvancedSearch, setIsAdvancedSearch] = useState(false);
+  const { loading, error, getMovies, searchMoviesApi, discoverMoviesApi } =
+    useFetchData();
 
   const loadMoreMovies = useCallback(async () => {
+    let data;
     if (loading) return;
-    const data = Object.values(filters).some(Boolean)
-      ? await searchMoviesApi(searchQuery, page, filters)
-      : await getMovies(page);
+    if (isAdvancedSearch) {
+      data = await discoverMoviesApi(filters, page);
+    } else if (searchQuery) {
+      data = await searchMoviesApi(searchQuery, page);
+    } else {
+      data = await getMovies(page);
+    }
 
     if (data) {
       setMovies((prevMovies) => [...prevMovies, ...data.results]);
@@ -38,6 +45,11 @@ export function MovieProvider({ children }) {
     setHasMore(true);
   }, []);
 
+  const toggleAdvancedSearch = useCallback(() => {
+    setIsAdvancedSearch((prev) => !prev);
+    resetMovies();
+  }, [resetMovies]);
+
   const contextValue = {
     movies,
     loading,
@@ -46,14 +58,17 @@ export function MovieProvider({ children }) {
     filters,
     page,
     hasMore,
+    isAdvancedSearch,
     setSearchQuery: (query) => {
       setSearchQuery(query);
+      resetMovies();
     },
     setFilters: (newFilters) => {
       setFilters(newFilters);
       resetMovies();
     },
     loadMoreMovies,
+    toggleAdvancedSearch,
   };
 
   return (

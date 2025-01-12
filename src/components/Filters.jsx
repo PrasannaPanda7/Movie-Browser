@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useMovieContext } from "@/context/MovieContext";
+import { X } from "lucide-react";
 
 export default function Filters() {
-  const { filters, setFilters } = useMovieContext();
+  const { filters, setFilters, isAdvancedSearch, toggleAdvancedSearch } =
+    useMovieContext();
   const [localFilters, setLocalFilters] = useState(filters);
   const [errors, setErrors] = useState({});
 
@@ -51,7 +53,6 @@ export default function Filters() {
       [name]: value,
     }));
 
-    // Clear error for the field being edited
     setErrors((prev) => ({
       ...prev,
       [name]: null,
@@ -59,20 +60,26 @@ export default function Filters() {
   };
 
   const applyFilters = () => {
-    // Validate all filters on Apply
     const validationErrors = validateFilters(localFilters);
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-      return; // Stop applying filters if there are errors
+      return;
     }
 
     setFilters(localFilters);
   };
 
+  if (!isAdvancedSearch) return <></>;
+
   return (
     <div className="mb-8">
-      <h2 className="text-2xl font-semibold mb-4">Filters</h2>
+      <div className="flex justify-between">
+        <h2 className="text-2xl font-semibold mb-4">Filters</h2>
+        <h2 onClick={() => toggleAdvancedSearch(false)}>
+          <X />
+        </h2>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <select
           name="genre"

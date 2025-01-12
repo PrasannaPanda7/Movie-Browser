@@ -5,17 +5,7 @@ import InfiniteScroll from "./InfiniteScroll";
 import { useMovieContext } from "@/context/MovieContext";
 
 export default function MovieList() {
-  const { movies, loading, error, hasMore, loadMoreMovies, searchQuery } =
-    useMovieContext();
-
-  const getFilteredMovies = (movies) => {
-    let filteredMovies = movies;
-    filteredMovies = movies.filter((ele) =>
-      ele.original_title.includes(searchQuery)
-    );
-
-    return filteredMovies;
-  };
+  const { movies, loading, error, hasMore, loadMoreMovies } = useMovieContext();
 
   if (error) {
     return (
@@ -30,7 +20,7 @@ export default function MovieList() {
       loading={loading}
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {getFilteredMovies(movies).map((movie) => (
+        {movies.map((movie) => (
           <MovieCard key={movie.id} movie={movie} />
         ))}
       </div>

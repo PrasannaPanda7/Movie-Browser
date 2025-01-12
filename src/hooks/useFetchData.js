@@ -24,13 +24,31 @@ export function useFetchData() {
     }
   }, []);
 
-  const searchMoviesApi = useCallback(async (query, page = 1, filters) => {
+  const searchMoviesApi = useCallback(async (query, page = 1) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(
+        `${BASE_URL}/search/movie?query=${query}&language=en-US&page=${page}`,
+        API_options
+      );
+      const data = await response.json();
+      return data;
+    } catch (err) {
+      setError(err ? err : new Error("An error occurred"));
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const discoverMoviesApi = useCallback(async (filters, page = 1) => {
     const { genre, yearFrom, yearTo, ratingFrom, ratingTo } = filters;
 
     setLoading(true);
     setError(null);
     try {
-      let url = `${BASE_URL}/discover/movie?language=en-US&query=${query}&page=${page}`;
+      let url = `${BASE_URL}/discover/movie?language=en-US&&page=${page}`;
 
       if (genre) url += `&with_genres=${genre}`;
       if (yearFrom) url += `&primary_release_date.gte=${yearFrom}-01-01`;
@@ -50,5 +68,5 @@ export function useFetchData() {
     }
   }, []);
 
-  return { loading, error, getMovies, searchMoviesApi };
+  return { loading, error, getMovies, searchMoviesApi, discoverMoviesApi };
 }
